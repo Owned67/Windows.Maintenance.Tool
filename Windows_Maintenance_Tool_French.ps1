@@ -1,4 +1,4 @@
-﻿# ===== ADMIN CHECK =====
+# ===== ADMIN CHECK =====
 if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
     Write-Host "Ce script a besoin des privilèges administrateur."
     Write-Host "Demande d'élévation en cours..."
@@ -1321,7 +1321,7 @@ function Choice-12 {
     $paths = @(
         $env:TEMP,              # User temp folder
         "C:\Windows\Temp",      # System temp folder
-        $env:LOCALAPPDATA\Temp  # temp folder
+        "$env:LOCALAPPDATA\Temp"  # temp folder
     )
 
     # Remove duplicates
