@@ -8,7 +8,10 @@ J'ai ajouter du code personnel, des nouvelles options...
 
 Je ne me suis pas attardé sur l'esthétique du script... Suite à la traduction, il se pourra que certains menu ne soient pas alignés correctement..
 
-Ce n'est qu'une traduction en Français de : https://github.com/ios12checker/Windows-Maintenance-Tool/blob/main/README.md
+Traduction en Français de : https://github.com/ios12checker/Windows-Maintenance-Tool/blob/main/README.md
+
+La traduction n'est pas encore complète !
+
 <img width="1219" height="832" alt="powershell_XjTFD9ZWA8" src="https://github.com/user-attachments/assets/73d11d4d-0fed-4db4-8362-8937c7e715c6" />
 
 Si l'auteur veut que ce soit supprimé, qu'il me contact :)
