@@ -261,6 +261,7 @@ function Choice-4 {
         Rename-Item -Path $restorehealth -NewName $newName
     }
     dism /online /cleanup-image /restorehealth
+    Write-Host "✔️ Restauration de l'état de santé terminé, un redémarrage est obligatoire !"
     Pause-Menu
 }
 
@@ -363,8 +364,10 @@ function Choice-5 {
     #    Get-NetAdapter | Where-Object { $_.InterfaceDescription -notmatch "Wi-Fi|Wireless|WLAN|Wireless|Wintun|Virtualbox|VMware|Wintun|Loopback|Bluetooth|Hyper-V|Ndis|Miniport|TAP|QEMU|Cisco|Teredo|ISATAP|vEthernet|Bridge" -and $_.Status -eq 'Up' } | Select-Object -ExpandProperty Name
     #}
     function Get-ActiveAdapters {
-        # Exclude virtual adapters like vEthernet
-        Get-NetAdapter | Where-Object { $_.Status -eq 'Up' -and $_.InterfaceDescription -notlike '*Virtual*' -and $_.Name -notlike '*vEthernet*' } | Select-Object -ExpandProperty Name
+        Get-NetAdapter | Where-Object {
+            $_.Status -eq 'Up' -and
+            $_.InterfaceDescription -notmatch 'Wi-?Fi|Wireless|WLAN|Wintun|Virtualbox|VMware|Loopback|Bluetooth|Hyper-V|Ndis|Miniport|TAP|QEMU|Cisco|Teredo|ISATAP|vEthernet|Bridge'
+        } | Select-Object -ExpandProperty Name
     }
     # Check if DoH is supported (Windows 11 or recent Windows 10)
     function Test-DoHSupport {
@@ -517,7 +520,7 @@ function Update-HostsFile {
         # ===== ENSURE BACKUP DIRECTORY EXISTS =====
         if (-not (Test-Path $backupDir)) {
             New-Item -ItemType Directory -Path $backupDir -Force | Out-Null
-            Write-Host "Created backup directory: $backupDir" -ForegroundColor Green
+            Write-Host "Répertoire de sauvegarde créé : $backupDir" -ForegroundColor Green
         }
 
         # ===== CREATE BACKUP =====
@@ -1097,29 +1100,29 @@ function Choice-9 {
                             Write-Host "==============================="
                             Write-Host
                             
-                            $displayName = Read-Host "Enter a display name for the rule"
-                            $name = Read-Host "Enter a unique name for the rule (no spaces, use hyphens)"
-                            $description = Read-Host "Enter a description for the rule"
+                            $displayName = Read-Host "Entrez un nom pour la règle"
+                            $name = Read-Host "Entrez un nom unique pour la règle (pas d'espaces, utilisez des traits d'union)"
+                            $description = Read-Host "Entrez une description pour la règle"
                             
                             do {
-                                $direction = Read-Host "Enter direction (Inbound/Outbound)"
+                                $direction = Read-Host "Entrez une direction (Entrant/Sortant)"
                             } while ($direction -notin "Inbound", "Outbound")
                             
                             do {
-                                $action = Read-Host "Enter action (Allow/Block)"
+                                $action = Read-Host "Entrez l'action (Autoriser/Bloquer)"
                             } while ($action -notin "Allow", "Block")
                             
                             do {
-                                $profile = Read-Host "Enter profile (Domain, Private, Public, Any)"
+                                $profile = Read-Host "Entrez le profil (Domaine, Privé, Public, Tout"
                             } while ($profile -notin "Domain", "Private", "Public", "Any")
                             
                             do {
-                                $protocol = Read-Host "Enter protocol (TCP, UDP, ICMP, Any)"
+                                $protocol = Read-Host "Entez le protocole (TCP, UDP, ICMP, Tous)"
                             } while ($protocol -notin "TCP", "UDP", "ICMP", "Any")
                             
-                            $localPort = Read-Host "Enter local port (leave blank for any)"
-                            $remotePort = Read-Host "Enter remote port (leave blank for any)"
-                            $program = Read-Host "Enter program path (leave blank for any)"
+                            $localPort = Read-Host "Entrez le port local (laissez vide pour tous)"
+                            $remotePort = Read-Host "Entez le port distant (laissez vide pour tous)"
+                            $program = Read-Host "Entrez le chemin du programme (laissez vide pour tous)"
                             
                             try {
                                 $params = @{
@@ -1137,9 +1140,9 @@ function Choice-9 {
                                 if ($program) { $params['Program'] = $program }
                                 
                                 New-NetFirewallRule @params
-                                Write-Host "Firewall rule created: $displayName" -ForegroundColor Green
+                                Write-Host "Règle de pare-feu créée : $displayName" -ForegroundColor Green
                             } catch {
-                                Write-Host "Failed to create rule: $_" -ForegroundColor Red
+                                Write-Host "Échec de la création de la règle : $_" -ForegroundColor Red
                             }
                             Write-Host "Appuyez sur n'importe quelle touche pour continuer..."
                             $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
@@ -1151,9 +1154,9 @@ function Choice-9 {
                                 $ruleName = Get-CleanRuleName -name $rule.DisplayName
                                 try {
                                     Remove-NetFirewallRule -Name $rule.Name -ErrorAction Stop
-                                    Write-Host "Removed rule: $ruleName" -ForegroundColor Green
+                                    Write-Host "Règle supprimée : $ruleName" -ForegroundColor Green
                                 } catch {
-                                    Write-Host "Failed to remove rule $ruleName`: $_" -ForegroundColor Red
+                                    Write-Host "Échec de la suppression de la règle $ruleName`: $_" -ForegroundColor Red
                                 }
                             } else {
                                 Write-Host "Numéro de règle invalide" -ForegroundColor Red
@@ -1162,7 +1165,7 @@ function Choice-9 {
                             $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
                         }
                         default { 
-                            Write-Host "Invalid action" -ForegroundColor Red
+                            Write-Host "Action invalide" -ForegroundColor Red
                             Write-Host "Appuyez sur n'importe quelle touche pour continuer..."
                             $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
                         }
@@ -1173,12 +1176,12 @@ function Choice-9 {
                 Clear-Host
                 Write-Host
                 Write-Host "==============================="
-                Write-Host "      Export Firewall Rules"
+                Write-Host "      Exporter les règles du pare-feu"
                 Write-Host "==============================="
                 Write-Host
                 
                 $defaultPath = "$env:USERPROFILE\Desktop\firewall_rules_$(Get-Date -Format 'yyyyMMdd_HHmmss').csv"
-                $filePath = Read-Host "Enter the file path to save the CSV (default: $defaultPath)"
+                $filePath = Read-Host "Entrez le chemin du fichier pour enregistrer le CSV (défaut : $defaultPath)"
                 
                 if ([string]::IsNullOrWhiteSpace($filePath)) {
                     $filePath = $defaultPath
@@ -1186,9 +1189,9 @@ function Choice-9 {
                 
                 try {
                     Get-NetFirewallRule | Sort-Object -Property DisplayName | Export-Csv -Path $filePath -NoTypeInformation
-                    Write-Host "Rules exported to $filePath" -ForegroundColor Green
+                    Write-Host "Règles exportés dans $filePath" -ForegroundColor Green
                 } catch {
-                    Write-Host "Export failed: $_" -ForegroundColor Red
+                    Write-Host "Échec de l'exportation : $_" -ForegroundColor Red
                 }
                 Write-Host "Appuyez sur n'importe quelle touche pour continuer..."
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
@@ -1197,12 +1200,12 @@ function Choice-9 {
                 Clear-Host
                 Write-Host
                 Write-Host "==============================="
-                Write-Host "      Import Firewall Rules"
+                Write-Host "      Importer des règles du pare-feu"
                 Write-Host "==============================="
                 Write-Host
                 
                 $defaultPath = "$env:USERPROFILE\Desktop\firewall_rules.csv"
-                $filePath = Read-Host "Enter the file path of the CSV to import (default looks on Desktop for firewall_rules.csv)"
+                $filePath = Read-Host "Saisissez le chemin du fichier CSV à importer (par défaut, il recherche firewall_rules.csv sur le bureau)"
                 
                 if ([string]::IsNullOrWhiteSpace($filePath)) {
                     $filePath = $defaultPath
@@ -1230,23 +1233,23 @@ function Choice-9 {
                                 $successCount++
                             } catch {
                                 $errorCount++
-                                Write-Host "Error importing rule $($rule.DisplayName): $_" -ForegroundColor Yellow
+                                Write-Host "Erreur lors de l'importation de la règle $($rule.DisplayName): $_" -ForegroundColor Yellow
                             }
                         }
                         
-                        Write-Host "Import completed: $successCount succeeded, $errorCount failed" -ForegroundColor Green
+                        Write-Host "Importation terminée : $successCount réussis, $errorCount échoués" -ForegroundColor Green
                     } catch {
-                        Write-Host "Import failed: $_" -ForegroundColor Red
+                        Write-Host "Importation échouée : $_" -ForegroundColor Red
                     }
                 } else {
-                    Write-Host "File not found: $filePath" -ForegroundColor Red
+                    Write-Host "Fichier introuvable : : $filePath" -ForegroundColor Red
                 }
                 Write-Host "Appuyez sur n'importe quelle touche pour continuer..."
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             }
             '0' { return }
             default { 
-                Write-Host "Invalid selection" -ForegroundColor Red
+                Write-Host "Sélection non valide" -ForegroundColor Red
                 Write-Host "Appuyez sur n'importe quelle touche pour continuer..."
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             }
@@ -1629,13 +1632,13 @@ function Choice-15 {
         # Retrieve scheduled tasks
         try {
             $tasks = schtasks /query /fo CSV /v | ConvertFrom-Csv | Where-Object {
-                $_."TaskName" -ne "" -and                        # Exclude empty TaskName
-                $_."TaskName" -ne "TaskName" -and               # Exclude placeholder "TaskName"
-                $_."Author" -ne "Author" -and                   # Exclude placeholder "Author"
-                $_."Status" -ne "Status" -and                   # Exclude placeholder "Status"
-                $_."Author" -notlike "*Scheduling data is not available in this format.*" -and  # Exclude invalid scheduling data
-                $_."TaskName" -notlike "*Enabled*" -and         # Exclude rows starting with "Enabled"
-                $_."TaskName" -notlike "*Disabled*"             # Exclude rows starting with "Disabled"
+                $_."Nom de la tâche" -ne "" -and 
+                $_."Nom de la tâche" -ne "Nom de la tâche" -and 
+                $_."Auteur" -ne "Auteur" -and
+                $_."Status" -ne "Status" -and
+                $_."Auteur" -notlike "*Les données de planification ne sont pas disponibles dans ce format.*" -and 
+                $_."Statut de la tâche planifiée" -notlike "*Activé*" -and
+                $_."Statut de la tâche planifiée" -notlike "*Désactivé*"
             }
             if (-not $tasks) {
                 Write-Host "Aucune tâche planifiée valide n'a été trouvée." -ForegroundColor Yellow
@@ -1647,7 +1650,7 @@ function Choice-15 {
         }
 
         # Remove duplicates based on TaskName, Author, and Status
-        $uniqueTasks = $tasks | Sort-Object "TaskName", "Author", "Status" -Unique
+        $uniqueTasks = $tasks | Sort-Object "Nom de la tâche", "Auteur", "Status" -Unique
 
         # Calculate maximum lengths for dynamic alignment
         $maxIdLength = ($uniqueTasks.Count.ToString()).Length  # Length of largest ID
@@ -1658,9 +1661,9 @@ function Choice-15 {
         # Process tasks to adjust Author and TaskName, and calculate max lengths
         $processedTasks = @()
         foreach ($task in $uniqueTasks) {
-            $taskName = if ($task."TaskName") { $task."TaskName" } else { "N/A" }
-            $author = if ($task."Author") { $task."Author" } else { "N/A" }
-            $status = if ($task."Status") { $task."Status" } else { "Unknown" }
+            $taskName = if ($task."Nom de la tâche") { $task."Nom de la tâche" } else { "N/A" }
+            $author = if ($task."Auteur") { $task."Auteur" } else { "N/A" }
+            $status = if ($task."Status") { $task."Status" } else { "Inconnu" }
 
             # Fix Author field for Microsoft tasks with resource strings (e.g., $(@%SystemRoot%\...))
             if ($author -like '$(@%SystemRoot%\*' -or $taskName -like '\Microsoft\*') {
@@ -1686,7 +1689,7 @@ function Choice-15 {
             $maxStatusLength = [Math]::Max($maxStatusLength, $status.Length)
 
             $processedTasks += [PSCustomObject]@{
-                OriginalTaskName = $task."TaskName"
+                OriginalTaskName = $task."Nom de la tâche"
                 DisplayTaskName  = $displayTaskName
                 Author           = $author
                 Status           = $status
@@ -1695,7 +1698,7 @@ function Choice-15 {
 
         # Print header with dynamic widths
         $headerFormat = "{0,-$maxIdLength} | {1,-$maxTaskNameLength} | {2,-$maxAuthorLength} | {3}"
-        Write-Host ($headerFormat -f "ID", "Task Name", "Author", "Status")
+        Write-Host ($headerFormat -f "ID", "Nom de la tâche", "Auteur", "Status")
         Write-Host ("-" * $maxIdLength + "-+-" + "-" * $maxTaskNameLength + "-+-" + "-" * $maxAuthorLength + "-+-" + "-" * $maxStatusLength)
 
         # Display tasks with index and color coding
@@ -1755,10 +1758,10 @@ function Choice-15 {
             Pause-Menu
             Clear-Host
             Write-Host "==============================================="
-            Write-Host "     Scheduled Task Management [Admin]"
+            Write-Host "     Gestion des tâches planifiées [Admin]"
             Write-Host "==============================================="
-            Write-Host "Refreshing task list..."
-            Write-Host "Microsoft tasks are shown in Green, third-party tasks in Yellow."
+            Write-Host "Actualisation de la liste des tâches..."
+            Write-Host "Les tâches Microsoft sont affichées en vert, les tâches tierces en jaune."
             Write-Host
             $taskList = Show-TaskList
             if (-not $taskList) {
@@ -1766,26 +1769,26 @@ function Choice-15 {
                 return
             }
         } elseif ($action -eq "2") {
-            $id = Read-Host "Enter task ID to disable"
+            $id = Read-Host "Entrez l'ID de tâche à désactiver"
             if ($id -match '^\d+$' -and $id -ge 1 -and $id -le $taskList.Count) {
                 $selectedTask = $taskList[$id - 1]
-                Write-Host "Disabling task: $($selectedTask.TaskName)"
+                Write-Host "Désactivation de la tâche : $($selectedTask.TaskName)"
                 try {
                     schtasks /change /tn "$($selectedTask.TaskName)" /disable | Out-Null
-                    Write-Host "Task disabled successfully." -ForegroundColor Green
+                    Write-Host "Tâche désactivée avec succès." -ForegroundColor Green
                 } catch {
-                    Write-Host "Error disabling task: $_" -ForegroundColor Red
+                    Write-Host "Erreur lors de la désactivation de la tâche : $_" -ForegroundColor Red
                 }
             } else {
-                Write-Host "Invalid task ID." -ForegroundColor Red
+                Write-Host "ID de tâche invalide." -ForegroundColor Red
             }
             Pause-Menu
             Clear-Host
             Write-Host "==============================================="
-            Write-Host "     Scheduled Task Management [Admin]"
+            Write-Host "     Gestion des tâches planifiées [Admin]"
             Write-Host "==============================================="
-            Write-Host "Refreshing task list..."
-            Write-Host "Microsoft tasks are shown in Green, third-party tasks in Yellow."
+            Write-Host "Actualisation de la liste des tâches..."
+            Write-Host "Les tâches Microsoft sont affichées en vert, les tâches tierces en jaune."
             Write-Host
             $taskList = Show-TaskList
             if (-not $taskList) {
@@ -1793,31 +1796,31 @@ function Choice-15 {
                 return
             }
         } elseif ($action -eq "3") {
-            $id = Read-Host "Enter task ID to delete"
+            $id = Read-Host "Entrez l'ID de tâche à supprimer"
             if ($id -match '^\d+$' -and $id -ge 1 -and $id -le $taskList.Count) {
                 $selectedTask = $taskList[$id - 1]
-                Write-Host "WARNING: Deleting task: $($selectedTask.TaskName)" -ForegroundColor Yellow
-                $confirm = Read-Host "Are you sure? (Y/N)"
-                if ($confirm -eq "Y" -or $confirm -eq "y") {
+                Write-Host "ATTENTION : Suppression de la t^che : $($selectedTask.TaskName)" -ForegroundColor Yellow
+                $confirm = Read-Host "Etes-vous sûr ? (O/N)"
+                if ($confirm -eq "O" -or $confirm -eq "o") {
                     try {
                         schtasks /delete /tn "$($selectedTask.TaskName)" /f | Out-Null
-                        Write-Host "Task deleted successfully." -ForegroundColor Green
+                        Write-Host "La tâche a été supprimée avec succès." -ForegroundColor Green
                     } catch {
-                        Write-Host "Error deleting task: $_" -ForegroundColor Red
+                        Write-Host "Erreur lors de la suppression de la tâche : $_" -ForegroundColor Red
                     }
                 } else {
-                    Write-Host "Action cancelled." -ForegroundColor Yellow
+                    Write-Host "Action annulée." -ForegroundColor Yellow
                 }
             } else {
-                Write-Host "Invalid task ID." -ForegroundColor Red
+                Write-Host "ID de tâche non valide." -ForegroundColor Red
             }
             Pause-Menu
             Clear-Host
             Write-Host "==============================================="
-            Write-Host "     Scheduled Task Management [Admin]"
+            Write-Host "     Gestion des tâches planifiées [Admin]"
             Write-Host "==============================================="
-            Write-Host "Refreshing task list..."
-            Write-Host "Microsoft tasks are shown in Green, third-party tasks in Yellow."
+            Write-Host "Actualisation de la liste des tâches..."
+            Write-Host "Les tâches Microsoft sont affichées en vert, les tâches tierces en jaune."
             Write-Host
             $taskList = Show-TaskList
             if (-not $taskList) {
@@ -1827,10 +1830,10 @@ function Choice-15 {
         } elseif ($action -eq "4") {
             Clear-Host
             Write-Host "==============================================="
-            Write-Host "     Scheduled Task Management [Admin]"
+            Write-Host "     Gestion des tâches planifiées [Admin]"
             Write-Host "==============================================="
-            Write-Host "Refreshing task list..."
-            Write-Host "Microsoft tasks are shown in Green, third-party tasks in Yellow."
+            Write-Host "Actualisation de la liste des tâches..."
+            Write-Host "Les tâches Microsoft sont affichées en vert, les tâches tierces en jaune."
             Write-Host
             $taskList = Show-TaskList
             if (-not $taskList) {
@@ -1838,7 +1841,7 @@ function Choice-15 {
                 return
             }
         } else {
-            Write-Host "Invalid option. Please enter 0-4 or a valid task ID." -ForegroundColor Red
+            Write-Host "Option non valide. Veuillez saisir une valeur comprise entre 0 et 4 ou un identifiant de tâche valide." -ForegroundColor Red
             Pause-Menu
         }
     }
