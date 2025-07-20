@@ -107,20 +107,20 @@ Enregistré directement dans le dossier de votre choix (par défaut : Bureau\Rap
 
 ## 🧪 Dépannage et FAQ
 
-<code style="color : red">Q</code> : Le script ne s’est pas exécuté avec les droits d’administrateur ? br / >
-R : Vous n'avez rien à faire, le script se relancera automatiquement en Administrateur br / > br / >
+<code style="color:red">Q</code> : Le script ne s’est pas exécuté avec les droits d’administrateur ? <br />
+R : Vous n'avez rien à faire, le script se relancera automatiquement en Administrateur <br /><br />
 
-Si vous souhaitez exécuter le script PowerShell manuellement, utilisez cette commande depuis une fenêtre PowerShell avec privilèges élevés : br / >
+Si vous souhaitez exécuter le script PowerShell manuellement, utilisez cette commande depuis une fenêtre PowerShell avec privilèges élevés : <br />
 ```powershell
 Start-Process powershell -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File 'Chemin\vers\Windows_Maintenance_Tool.ps1'"
 ```
-Q : Pourquoi l'outil plante-t-il lors de la sélection du nettoyage du registre ? br / >
-R : Ce problème a été entièrement résolu dans la version 3.1.3. L'outil répertorie et supprime désormais les clés de registre en toute sécurité via PowerShell. br / >
-Avant toute suppression, une sauvegarde est automatiquement créée et les erreurs sont correctement gérées pour éviter les plantages de script ou les pertes de données accidentelles. br / > br / >
+Q : Pourquoi l'outil plante-t-il lors de la sélection du nettoyage du registre ? <br />
+R : Ce problème a été entièrement résolu dans la version 3.1.3. L'outil répertorie et supprime désormais les clés de registre en toute sécurité via PowerShell. <br />
+Avant toute suppression, une sauvegarde est automatiquement créée et les erreurs sont correctement gérées pour éviter les plantages de script ou les pertes de données accidentelles. <br /><br />
 
-**Q : Pourquoi la défragmentation du registre a-t-elle été supprimée ?** br / >
-R : Cette fonctionnalité dépendait d'un outil tiers (NTREGOPT) qui n'est plus accessible. br / >
-Le script est désormais entièrement hors ligne et natif de Windows. br / > br / >
+**Q : Pourquoi la défragmentation du registre a-t-elle été supprimée ?** <br />
+R : Cette fonctionnalité dépendait d'un outil tiers (NTREGOPT) qui n'est plus accessible. <br />
+Le script est désormais entièrement hors ligne et natif de Windows. <br /><br />
 
 ---
 
