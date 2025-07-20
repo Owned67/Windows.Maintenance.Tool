@@ -869,7 +869,7 @@ copy /Y "$uniqueBackupPath" "$hostsPath"
             }
             "5" {
                 if (-not $dohSupported) {
-                    Write-Host "Error: DoH is not supported on this system. Option 5 is unavailable." -ForegroundColor Red
+                    Write-Host "Erreur : DoH n'est pas supporté par votre système d'exploitation, l'option 5 n'est pas disponible." -ForegroundColor Red
                     Pause-Menu
                     return
                 }
