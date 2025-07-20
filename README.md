@@ -107,7 +107,7 @@ Enregistré directement dans le dossier de votre choix (par défaut : Bureau\Rap
 
 ## 🧪 Dépannage et FAQ
 
-<code style="color:red">Q</code> : Le script ne s’est pas exécuté avec les droits d’administrateur ? <br />
+$\color{Red}\Q{\textsf{Huge, colored text}}$ : Le script ne s’est pas exécuté avec les droits d’administrateur ? <br />
 R : Vous n'avez rien à faire, le script se relancera automatiquement en Administrateur <br /><br />
 
 Si vous souhaitez exécuter le script PowerShell manuellement, utilisez cette commande depuis une fenêtre PowerShell avec privilèges élevés : <br />
